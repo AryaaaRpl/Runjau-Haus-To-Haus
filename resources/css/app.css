@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views';
+
+/* Design tokens — satu-satunya sumber warna. Jangan pakai hex lepas di view. */
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+    --color-canvas: #121110;      /* latar utama */
+    --color-surface: #1a1917;     /* area kerja */
+    --color-raised: #23211e;      /* hover, kontrol sekunder */
+    --color-line: #302d29;        /* border kontrol & pemisah utama */
+    --color-line-soft: #25231f;   /* pemisah baris tabel */
+    --color-ink: #f3f1ee;         /* teks utama */
+    --color-ink-2: #c8c3bb;       /* teks sekunder */
+    --color-muted: #948e85;       /* label */
+    --color-faint: #6e6962;       /* placeholder, info tersier */
+
+    --color-accent: #F25919;      /* oranye — satu-satunya aksen */
+    --color-accent-hover: #ff6c2e;
+    --color-accent-ink: #1a0b03;  /* teks di atas oranye */
+}
+
+@layer base {
+    body { font-feature-settings: 'ss01', 'cv11'; }
+    .font-mono { font-variant-numeric: tabular-nums; }
+    :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    input:focus-visible { outline: none; }
+    button:not(:disabled), [role='button']:not(:disabled) { cursor: pointer; }
+}
