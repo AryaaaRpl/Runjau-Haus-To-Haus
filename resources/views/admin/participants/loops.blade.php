@@ -44,14 +44,14 @@
     </div>
 
     <!-- Link & QR dashboard peserta -->
-    <section class="flex flex-col sm:flex-row gap-5 pb-6 border-b border-line">
-        <div class="shrink-0 w-40 h-40 bg-white p-2 rounded" aria-label="QR dashboard peserta">{!! $qrSvg !!}</div>
-        <div class="min-w-0 space-y-3">
+    <section class="flex flex-col sm:flex-row items-start gap-5 pb-6 border-b border-line">
+        <div class="shrink-0 w-40 h-40 bg-white p-2 rounded overflow-hidden" aria-label="QR dashboard peserta">{!! $qrSvg !!}</div>
+        <div class="flex-1 min-w-0 space-y-3">
             <div>
                 <h2 class="text-sm font-semibold">Dashboard peserta</h2>
                 <p class="text-xs text-muted mt-0.5">Cetak QR ini di kartu peserta. Siapa pun yang memegang link dapat membuka dashboard-nya.</p>
             </div>
-            <div class="flex">
+            <div class="flex max-w-xl">
                 <input id="portal-url" type="text" readonly value="{{ $portalUrl }}" aria-label="Link dashboard peserta"
                        class="flex-1 min-w-0 bg-surface border border-line border-r-0 rounded-l-md px-3 py-2 text-xs font-mono text-ink-2 outline-none">
                 <button type="button" onclick="navigator.clipboard?.writeText(document.getElementById('portal-url').value); this.textContent='Tersalin'"

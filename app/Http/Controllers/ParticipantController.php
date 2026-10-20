@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Participant;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -120,11 +124,11 @@ class ParticipantController extends Controller
 
     protected function qrSvg(string $text): string
     {
-        $renderer = new \BaconQrCode\Renderer\ImageRenderer(
-            new \BaconQrCode\Renderer\RendererStyle\RendererStyle(200, 1),
-            new \BaconQrCode\Renderer\Image\SvgImageBackEnd()
+        $renderer = new ImageRenderer(
+            new RendererStyle(144, 1),
+            new SvgImageBackEnd
         );
 
-        return (new \BaconQrCode\Writer($renderer))->writeString($text);
+        return str_replace('<svg ', '<svg class="w-full h-full block" ', (new Writer($renderer))->writeString($text));
     }
 }
