@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Participant;
+use App\Models\RaceRoute;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -121,7 +122,7 @@ class ParticipantPortalTest extends TestCase
             ->post(route('admin.race-route.store'), ['route_gpx' => $this->gpx(), 'route_name' => 'Rute Genteng 6K'])
             ->assertRedirect();
 
-        $route = \App\Models\RaceRoute::current();
+        $route = RaceRoute::current();
         $this->assertNotNull($route);
         $this->assertCount(200, $route->route); // rute lomba tidak dipangkas
 
@@ -132,14 +133,14 @@ class ParticipantPortalTest extends TestCase
     public function test_guest_cannot_upload_race_route(): void
     {
         $this->post(route('admin.race-route.store'), ['route_gpx' => $this->gpx()])->assertRedirect(route('login'));
-        $this->assertNull(\App\Models\RaceRoute::current());
+        $this->assertNull(RaceRoute::current());
     }
 
     public function test_loop_distance_uses_race_route_when_available(): void
     {
         Config::set('rfid.debounce_seconds', 0);
         $p = $this->makeParticipant();
-        \App\Models\RaceRoute::create(['name' => 'Rute 6K', 'distance_m' => 6070, 'route' => [[-8.36, 114.15], [-8.35, 114.15]]]);
+        RaceRoute::create(['name' => 'Rute 6K', 'distance_m' => 6070, 'route' => [[-8.36, 114.15], [-8.35, 114.15]]]);
 
         $this->postJson('/api/rfid/scan', ['rfid_uid' => '0007352925']);
         $this->postJson('/api/rfid/scan', ['rfid_uid' => '0007352925']);

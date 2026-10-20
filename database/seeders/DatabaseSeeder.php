@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
         );
 
         // 2. Fictional Participants
-        $rioUid = env('SAMPLE_RFID_UID', '0007352925');
+        $rioUid = config('rfid.sample_uid', '0007352925');
 
         $participantsData = [
             [

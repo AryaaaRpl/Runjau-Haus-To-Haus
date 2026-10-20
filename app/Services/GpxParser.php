@@ -20,7 +20,7 @@ class GpxParser
     public function parse(string $xml, bool $privacyTrim = true): array
     {
         $previous = libxml_use_internal_errors(true);
-        $doc = new DOMDocument();
+        $doc = new DOMDocument;
         // LIBXML_NONET: jangan pernah mengambil resource eksternal dari file unggahan.
         $loaded = $doc->loadXML($xml, LIBXML_NONET | LIBXML_COMPACT);
         libxml_clear_errors();

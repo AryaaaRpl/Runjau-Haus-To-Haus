@@ -31,7 +31,7 @@
 
     {{-- Identitas --}}
     <header>
-        <img src="{{ asset('images/brand/runjau.png') }}" alt="Runjau Haus To Haus" class="h-14 w-auto mb-5" width="128" height="56">
+        <img src="{{ asset('images/brand/haus-to-haus.png') }}" alt="Runjau Haus To Haus" class="h-14 w-auto mb-5" width="191" height="56">
         <p class="text-xs text-muted">Dashboard peserta · Runjau Haus To Haus</p>
         <h1 class="mt-1 text-2xl font-semibold tracking-tight break-words">{{ $participant->name }}</h1>
         <p class="mt-1 font-mono text-ink-2">BIB {{ $participant->bib_number }}</p>
@@ -39,7 +39,7 @@
 
     {{-- Lomba (data RFID) --}}
     <section aria-labelledby="race-heading">
-        <h2 id="race-heading" class="text-base font-semibold pb-2 border-b border-line">Lomba</h2>
+        <h2 id="race-heading" class="text-base font-semibold pb-2 border-b border-line">Running Event</h2>
 
         <dl class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-y-4">
             <div>

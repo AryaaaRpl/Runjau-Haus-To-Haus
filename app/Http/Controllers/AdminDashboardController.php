@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LoopRecord;
 use App\Models\Participant;
+use App\Models\RaceRoute;
 use App\Models\ScanLog;
 use App\Services\ScanService;
 use Illuminate\Http\RedirectResponse;
@@ -27,7 +28,7 @@ class AdminDashboardController extends Controller
             ->limit(5)
             ->get();
 
-        $raceRoute = \App\Models\RaceRoute::current();
+        $raceRoute = RaceRoute::current();
 
         return view('admin.dashboard', compact('summary', 'recentScans', 'topRunners', 'raceRoute'));
     }

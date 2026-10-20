@@ -30,8 +30,7 @@
     <header class="border-b border-line">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-4">
             <a href="{{ View::hasSection('public') ? '#' : route('rfid.scan') }}" class="flex items-center gap-2 shrink-0">
-                <img src="{{ asset('images/brand/runjau.png') }}" alt="Runjau" class="h-7 w-auto" width="64" height="28">
-                <span class="text-sm font-medium tracking-tight text-accent border-l border-line pl-2" style="color: #F25919;">Haus To Haus</span>
+                <img src="{{ asset('images/brand/runjau-pinehaus.png') }}" alt="Runjau Pine Häus" class="h-7 w-auto" width="166" height="28">
                 <span class="hidden sm:inline text-[11px] font-mono text-faint border border-line px-1.5 rounded">DEMO</span>
             </a>
 

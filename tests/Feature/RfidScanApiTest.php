@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\LoopRecord;
 use App\Models\Participant;
 use App\Models\ScanLog;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;

@@ -29,4 +29,6 @@ return [
         'max_zoom' => (int) env('MAP_MAX_ZOOM', 19),
         'dark_filter' => (bool) env('MAP_DARK_FILTER', true),
     ],
+
+    'sample_uid' => env('SAMPLE_RFID_UID', '0007352925'),
 ];
