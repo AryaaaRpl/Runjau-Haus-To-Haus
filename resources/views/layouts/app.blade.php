@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Runjau Haus To Haus') · Runjau Haus To Haus</title>
+
+    <meta name="description" content="@yield('meta_description', 'Sistem Manajemen & Live Tracking Lari Runjau Haus To Haus. Dikembangkan oleh PT.SEM;CO.')">
+    <meta name="author" content="PT.SEM;CO">
+    <meta name="publisher" content="PT.SEM;CO">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="Runjau Haus To Haus">
+    <meta property="og:title" content="@yield('title', 'Runjau Haus To Haus') · Runjau Haus To Haus">
+    <meta property="og:description" content="@yield('meta_description', 'Sistem Manajemen & Live Tracking Lari Runjau Haus To Haus. Dikembangkan oleh PT.SEM;CO.')">
+    <meta property="og:image" content="{{ asset('images/brand/runjau.png') }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url()->current() }}">
+    <meta name="twitter:title" content="@yield('title', 'Runjau Haus To Haus') · Runjau Haus To Haus">
+    <meta name="twitter:description" content="@yield('meta_description', 'Sistem Manajemen & Live Tracking Lari Runjau Haus To Haus. Dikembangkan oleh PT.SEM;CO.')">
+    <meta name="twitter:image" content="{{ asset('images/brand/runjau.png') }}">
+
     <link rel="icon" type="image/png" href="{{ asset('images/brand/runjau.png') }}">
     <meta name="theme-color" content="#121110">
 
