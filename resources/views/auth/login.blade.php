@@ -12,7 +12,7 @@
             <p class="text-xs text-muted mt-1">Konsol panitia Runjau Haus To Haus</p>
         </div>
 
-        <form method="POST" action="{{ route('login.post') }}" class="space-y-4">
+        <form method="POST" action="{{ route('login.post') }}" class="space-y-4" onsubmit="const btn = this.querySelector('button[type=submit]'); btn.disabled = true; btn.classList.add('opacity-50', 'cursor-not-allowed'); btn.innerText = 'Memproses...';">
             @csrf
 
             <div>
@@ -53,7 +53,7 @@
 
             <button
                 type="submit"
-                class="w-full mt-2 bg-raised hover:bg-line text-ink font-medium py-2 pr-3 rounded-md border border-line transition-colors text-xs flex items-center justify-center space-x-1.5"
+                class="w-full mt-2 bg-raised hover:bg-line text-ink font-medium py-2 pr-3 rounded-md border border-line transition-colors text-xs flex items-center justify-center space-x-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <span>Masuk ke Dashboard</span>
             </button>

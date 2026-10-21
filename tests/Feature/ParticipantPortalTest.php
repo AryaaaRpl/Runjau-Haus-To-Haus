@@ -147,4 +147,40 @@ class ParticipantPortalTest extends TestCase
 
         $this->get('/p/'.$p->access_token)->assertOk()->assertSee('12,14'); // 2 x 6,07 km
     }
+
+    /**
+     * Dashboard peserta mendukung polling JSON untuk update live di venue.
+     */
+    public function test_participant_dashboard_supports_live_json_polling(): void
+    {
+        Config::set('rfid.debounce_seconds', 0);
+        Config::set('rfid.track_length_m', 500);
+        $p = $this->makeParticipant();
+
+        $this->postJson('/api/rfid/scan', ['rfid_uid' => '0007352925']);
+
+        $response = $this->getJson('/p/'.$p->access_token);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'loop_count' => 1,
+                'race_distance_m' => 500,
+            ]);
+    }
+
+    /**
+     * Dashboard peserta memuat elemen interaktif kalkulator dan telemetri lomba.
+     */
+    public function test_participant_dashboard_renders_interactive_elements(): void
+    {
+        $p = $this->makeParticipant();
+
+        $response = $this->get('/p/'.$p->access_token);
+
+        $response->assertStatus(200)
+            ->assertSee('Kalkulator Target')
+            ->assertSee('Telemetri Lomba')
+            ->assertSee('Personal Timing Pass');
+    }
 }

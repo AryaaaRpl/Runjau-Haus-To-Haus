@@ -116,4 +116,23 @@ class ParticipantRegistrationTest extends TestCase
         $this->assertSame('0042', $participant->bib_number);
         $this->assertSame('0007352925', $participant->rfid_uid);
     }
+
+    /**
+     * Admin dashboard menampilkan leaderboard dengan paginasi dan tab audit scan.
+     */
+    public function test_authenticated_admin_can_view_upgraded_dashboard(): void
+    {
+        $admin = User::factory()->create();
+        Participant::create(['name' => 'Peserta Tes', 'bib_number' => '888', 'rfid_uid' => '000888']);
+
+        $response = $this->actingAs($admin)->get('/admin/dashboard');
+
+        $response->assertStatus(200)
+            ->assertSee('Dashboard Operasional Event')
+            ->assertSee('Leaderboard Peserta')
+            ->assertSee('Log Scan Terakhir')
+            ->assertSee('Peserta Tes')
+            ->assertSee('888')
+            ->assertSee('admin-pagination-info', false);
+    }
 }

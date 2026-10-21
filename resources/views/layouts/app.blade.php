@@ -64,7 +64,9 @@
                         <button type="submit" class="px-2.5 h-12 text-muted hover:text-ink transition-colors whitespace-nowrap">Keluar</button>
                     </form>
                 @else
+                @if(auth()->user()?->role === 'admin')
                     <a href="{{ route('login') }}" class="px-2.5 h-12 flex items-center text-muted hover:text-ink transition-colors whitespace-nowrap">Login admin</a>
+                    @endif
                 @endauth
             </nav>
             @endunless

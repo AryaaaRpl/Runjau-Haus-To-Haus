@@ -22,12 +22,12 @@ class AdminDashboardController extends Controller
         $summary = $this->scanService->getSummary();
         $recentScans = $this->scanService->getRecentScans(10);
 
-        // Top participants by loop count
+        // Top participants by loop count with pagination
         $topRunners = Participant::withCount('loopRecords')
-            ->orderBy('loop_records_count', 'desc')
-            ->limit(5)
-            ->get();
-
+            ->withMax('loopRecords as latest_scanned_at', 'scanned_at')
+            ->orderByDesc('loop_records_count')
+            ->orderBy('bib_number')
+            ->paginate(10);
         $raceRoute = RaceRoute::current();
 
         return view('admin.dashboard', compact('summary', 'recentScans', 'topRunners', 'raceRoute'));

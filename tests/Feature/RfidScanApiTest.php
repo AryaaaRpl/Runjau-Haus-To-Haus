@@ -349,4 +349,67 @@ class RfidScanApiTest extends TestCase
         $this->assertEquals(1, LoopRecord::where('participant_id', $participant->id)->count());
         $this->assertEquals(1, ScanLog::count());
     }
+
+    /**
+     * Endpoint /api/dashboard/participants mengembalikan data peserta terpaginasi.
+     */
+    public function test_dashboard_participants_endpoint_returns_paginated_data(): void
+    {
+        Participant::create(['name' => 'Pelari Satu', 'bib_number' => '101', 'rfid_uid' => '000101']);
+        Participant::create(['name' => 'Pelari Dua', 'bib_number' => '102', 'rfid_uid' => '000102']);
+
+        $response = $this->getJson('/api/dashboard/participants?per_page=1');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'pagination' => [
+                    'current_page' => 1,
+                    'per_page' => 1,
+                    'total' => 2,
+                ],
+            ]);
+
+        $this->assertCount(1, $response->json('data'));
+    }
+
+    /**
+     * Endpoint /api/dashboard/scans mengembalikan data scan terpaginasi.
+     */
+    public function test_dashboard_scans_endpoint_returns_paginated_data(): void
+    {
+        $participant = Participant::create(['name' => 'Pelari Scan', 'bib_number' => '303', 'rfid_uid' => '000303']);
+        $this->postJson('/api/rfid/scan', ['rfid_uid' => '000303']);
+
+        $response = $this->getJson('/api/dashboard/scans?per_page=5');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'pagination' => [
+                    'current_page' => 1,
+                    'total' => 1,
+                ],
+            ]);
+
+        $this->assertSame('303', $response->json('data.0.bib_number'));
+    }
+
+    /**
+     * Halaman scan / utama memuat data ringkasan, peserta, dan elemen paginasi.
+     */
+    public function test_main_scan_page_renders_with_paginated_participants_and_summary(): void
+    {
+        Participant::create(['name' => 'Budi Santoso', 'bib_number' => '777', 'rfid_uid' => '000777']);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200)
+            ->assertSee('Terminal Reader RFID')
+            ->assertSee('Data Peserta')
+            ->assertSee('Aktivitas Scan')
+            ->assertSee('Budi Santoso')
+            ->assertSee('777')
+            ->assertSee('pagination-info', false);
+    }
 }

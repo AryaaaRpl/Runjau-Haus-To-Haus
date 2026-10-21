@@ -6,6 +6,7 @@ use App\Models\Participant;
 use App\Models\ParticipantRun;
 use App\Models\RaceRoute;
 use App\Services\GpxParser;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -18,7 +19,7 @@ use InvalidArgumentException;
  */
 class ParticipantPortalController extends Controller
 {
-    public function show(string $token): Response
+    public function show(string $token): Response|JsonResponse
     {
         $participant = $this->resolve($token);
 
@@ -40,6 +41,22 @@ class ParticipantPortalController extends Controller
         }
 
         $runs = $participant->runs()->get();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'loop_count' => $loops->count(),
+                'race_distance_m' => $loops->count() * $trackLength,
+                'track_length' => $trackLength,
+                'splits' => collect($splits)->map(fn ($s) => [
+                    'number' => $s['number'],
+                    'time' => $s['time']->timezone('Asia/Jakarta')->format('H:i:s'),
+                    'split_s' => $s['split_s'],
+                    'cumulative_m' => $s['number'] * $trackLength,
+                ]),
+                'last_scanned_at' => $loops->last()?->scanned_at?->toIso8601String(),
+            ]);
+        }
 
         return response()
             ->view('participant.dashboard', [
