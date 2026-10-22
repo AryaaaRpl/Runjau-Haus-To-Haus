@@ -95,8 +95,12 @@
                     <span>Kartu RFID terdaftar dan siap dipindai di timing gate start/finish.</span>
                 @endif
             </div>
-            <div id="live-freshness" class="text-[11px] text-faint font-mono">
-                Terakhir dipindai: {{ $latestSplit ? $latestSplit['time']->timezone('Asia/Jakarta')->format('H:i:s') . ' WIB' : '–' }}
+            <div id="live-freshness" class="text-[11px] text-faint font-mono" data-time="{{ $latestSplit ? $latestSplit['time']->toIso8601String() : '' }}">
+                @if ($latestSplit)
+                    Terakhir dipindai: {{ $latestSplit['time']->timezone('Asia/Jakarta')->format('H:i:s') }} WIB <span class="text-accent/90 scan-freshness-ago">({{ $latestSplit['time']->diffForHumans() }})</span>
+                @else
+                    Terakhir dipindai: –
+                @endif
             </div>
         </div>
     </div>
@@ -629,8 +633,9 @@
                 if (heroLoops) heroLoops.textContent = data.loop_count + ' putaran';
 
                 if (freshness && data.last_scanned_at) {
+                    freshness.setAttribute('data-time', data.last_scanned_at);
                     const t = new Date(data.last_scanned_at).toLocaleTimeString('id-ID', { hour12: false });
-                    freshness.textContent = `Terakhir dipindai: ${t} WIB`;
+                    freshness.innerHTML = `Terakhir dipindai: ${t} WIB <span class="text-accent/90 scan-freshness-ago">(${formatTimeAgo(data.last_scanned_at)})</span>`;
                 }
 
                 updateCalculatorUI();
@@ -642,6 +647,34 @@
             // Offline atau koneksi lambat
         }
     }
+    function formatTimeAgo(isoString) {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        const now = new Date();
+        const diffSec = Math.floor((now - date) / 1000);
+
+        if (diffSec < 5) return 'baru saja';
+        if (diffSec < 60) return `${diffSec} dtk lalu`;
+        const diffMin = Math.floor(diffSec / 60);
+        if (diffMin < 60) return `${diffMin} mnt lalu`;
+        const diffHr = Math.floor(diffMin / 60);
+        if (diffHr < 24) return `${diffHr} jam lalu`;
+        const diffDays = Math.floor(diffHr / 24);
+        return `${diffDays} hr lalu`;
+    }
+
+    function updateParticipantRelativeTime() {
+        const freshness = document.getElementById('live-freshness');
+        if (!freshness) return;
+        const iso = freshness.getAttribute('data-time');
+        if (!iso) return;
+        const agoSpan = freshness.querySelector('.scan-freshness-ago');
+        if (agoSpan) {
+            agoSpan.textContent = `(${formatTimeAgo(iso)})`;
+        }
+    }
+
+    setInterval(updateParticipantRelativeTime, 3000);
 
     setInterval(checkLiveTelemetry, 10000);
 </script>

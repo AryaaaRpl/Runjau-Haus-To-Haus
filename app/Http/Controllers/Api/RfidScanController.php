@@ -151,6 +151,7 @@ class RfidScanController extends Controller
 
         $items = collect($paginated->items())->map(function (Participant $p) {
             $lastTime = $p->latest_scanned_at ? Carbon::parse($p->latest_scanned_at)->format('H:i:s') : null;
+            $lastTimeIso = $p->latest_scanned_at ? Carbon::parse($p->latest_scanned_at)->toIso8601String() : null;
 
             return [
                 'id' => $p->id,
@@ -159,6 +160,7 @@ class RfidScanController extends Controller
                 'rfid_uid' => (string) ($p->rfid_uid ?? ''),
                 'total_loops' => (int) $p->loop_records_count,
                 'last_scanned_at' => $lastTime,
+                'last_scanned_at_iso' => $lastTimeIso,
             ];
         });
 

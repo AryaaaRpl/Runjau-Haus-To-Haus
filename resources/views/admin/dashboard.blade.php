@@ -154,7 +154,15 @@
                                     </span>
                                 </td>
                                 <td class="py-2.5 px-4 text-right font-mono text-muted">
-                                    {{ $runner->latest_scanned_at ? \Carbon\Carbon::parse($runner->latest_scanned_at)->format('H:i:s') : '—' }}
+                                    @if ($runner->latest_scanned_at)
+                                        @php $carbonTime = \Carbon\Carbon::parse($runner->latest_scanned_at); @endphp
+                                        <div class="leading-tight">
+                                            <span>{{ $carbonTime->format('H:i:s') }}</span>
+                                            <span class="block text-[10px] text-accent/90 font-sans scan-time-ago" data-time="{{ $carbonTime->toIso8601String() }}">{{ $carbonTime->diffForHumans() }}</span>
+                                        </div>
+                                    @else
+                                        —
+                                    @endif
                                 </td>
                                 <td class="py-2.5 px-4 text-right font-sans">
                                     <a href="{{ route('admin.participants.loops', $runner) }}" class="inline-block px-2 py-1 rounded text-xs text-ink-2 hover:text-ink bg-surface border border-line-soft hover:border-line transition-colors">
@@ -194,7 +202,14 @@
                                 };
                             @endphp
                             <tr class="hover:bg-surface transition-colors">
-                                <td class="py-2.5 px-4 text-ink-2 whitespace-nowrap">{{ $scan['scanned_at'] }}</td>
+                                <td class="py-2.5 px-4 text-ink-2 whitespace-nowrap">
+                                    <div class="leading-tight">
+                                        <span>{{ $scan['scanned_at'] }}</span>
+                                        @if (!empty($scan['scanned_at_iso']))
+                                            <span class="block text-[10px] text-muted scan-time-ago" data-time="{{ $scan['scanned_at_iso'] }}">{{ \Carbon\Carbon::parse($scan['scanned_at_iso'])->diffForHumans() }}</span>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td class="py-2.5 px-4 font-sans font-medium text-ink {{ $scan['status'] === 'rejected' ? 'text-muted' : '' }}">
                                     {{ $scan['participant_name'] }}
                                 </td>
@@ -433,6 +448,28 @@
             loadAdminLogs(page);
         }
     }
+    function formatTimeAgo(isoString) {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        const now = new Date();
+        const diffSec = Math.floor((now - date) / 1000);
+
+        if (diffSec < 5) return 'baru saja';
+        if (diffSec < 60) return `${diffSec} dtk lalu`;
+        const diffMin = Math.floor(diffSec / 60);
+        if (diffMin < 60) return `${diffMin} mnt lalu`;
+        const diffHr = Math.floor(diffMin / 60);
+        if (diffHr < 24) return `${diffHr} jam lalu`;
+        const diffDays = Math.floor(diffHr / 24);
+        return `${diffDays} hr lalu`;
+    }
+
+    function updateAllRelativeTimes() {
+        document.querySelectorAll('.scan-time-ago[data-time]').forEach(el => {
+            const iso = el.getAttribute('data-time');
+            if (iso) el.textContent = formatTimeAgo(iso);
+        });
+    }
 
     function escapeHtml(v) {
         return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -499,7 +536,14 @@
                             ${p.total_loops} <span class="text-[11px] font-sans font-normal text-muted">loop</span>
                         </span>
                     </td>
-                    <td class="py-2.5 px-4 text-right font-mono text-muted">${escapeHtml(p.last_scanned_at || '—')}</td>
+                    <td class="py-2.5 px-4 text-right font-mono text-muted">
+                        ${p.last_scanned_at ? `
+                            <div class="leading-tight">
+                                <span>${escapeHtml(p.last_scanned_at)}</span>
+                                <span class="block text-[10px] text-accent/90 font-sans scan-time-ago" data-time="${escapeHtml(p.last_scanned_at_iso || '')}">${formatTimeAgo(p.last_scanned_at_iso)}</span>
+                            </div>
+                        ` : '—'}
+                    </td>
                     <td class="py-2.5 px-4 text-right font-sans">
                         <a href="/admin/participants/${p.id}/loops" class="inline-block px-2 py-1 rounded text-xs text-ink-2 hover:text-ink bg-surface border border-line-soft hover:border-line transition-colors">
                             Detail Loop
@@ -523,7 +567,12 @@
 
             return `
                 <tr class="hover:bg-surface transition-colors">
-                    <td class="py-2.5 px-4 text-ink-2 whitespace-nowrap">${escapeHtml(s.scanned_at)}</td>
+                    <td class="py-2.5 px-4 text-ink-2 whitespace-nowrap">
+                        <div class="leading-tight">
+                            <span>${escapeHtml(s.scanned_at)}</span>
+                            ${s.scanned_at_iso ? `<span class="block text-[10px] text-muted scan-time-ago" data-time="${escapeHtml(s.scanned_at_iso)}">${formatTimeAgo(s.scanned_at_iso)}</span>` : ''}
+                        </div>
+                    </td>
                     <td class="py-2.5 px-4 font-sans font-medium text-ink ${s.status === 'rejected' ? 'text-muted' : ''}">
                         ${escapeHtml(s.participant_name)}
                     </td>
@@ -607,9 +656,9 @@
         }
     }
 
-    // Auto-refresh data setiap 15 detik untuk admin dashboard
-    setInterval(refreshAdminData, 15000);
-
+    // Auto-refresh data secara berkala dan perbarui penanda waktu realtime setiap 3 detik
+    setInterval(refreshAdminData, 4000);
+    setInterval(updateAllRelativeTimes, 3000);
     // Inisialisasi tampilan nomor paginasi awal
     updateAdminPaginationUI(adminPagination);
 
