@@ -324,76 +324,6 @@
         </div>
     </section>
 
-    {{-- Lari Pribadi (GPX Sync dari Strava / Garmin) --}}
-    <section aria-labelledby="runs-heading" class="bg-surface border border-line rounded-lg p-5 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 pb-3 border-b border-line-soft">
-            <div>
-                <h2 id="runs-heading" class="text-sm font-semibold text-ink uppercase tracking-wider">Aktivitas Lari Pribadi</h2>
-                <p class="text-xs text-muted mt-0.5">Unggah rute lari personal dari Strava, Garmin, atau Apple Watch (.gpx)</p>
-            </div>
-            @if ($runs->isNotEmpty())
-                <span class="text-xs text-muted font-mono">
-                    {{ $runs->count() }} lari · <span class="text-accent font-semibold">{{ $km($runsDistanceM) }}</span> km total
-                </span>
-            @endif
-        </div>
-
-        <form method="POST" action="{{ route('participant.runs.store', $token) }}" enctype="multipart/form-data" id="gpx-form">
-            @csrf
-            <div class="flex flex-col sm:flex-row gap-2.5">
-                <input
-                    type="file"
-                    name="gpx"
-                    id="gpx"
-                    accept=".gpx,application/gpx+xml"
-                    required
-                    aria-label="Pilih file GPX"
-                    class="flex-1 min-w-0 text-xs text-ink-2 file:mr-3 file:px-3 file:py-2 file:rounded-md file:border file:border-line file:bg-raised file:text-ink file:text-xs hover:file:bg-line transition-colors"
-                />
-                <button
-                    type="submit"
-                    class="px-4 py-2 rounded-md bg-accent hover:bg-accent-hover text-accent-ink text-xs font-semibold whitespace-nowrap transition-colors disabled:opacity-50"
-                >
-                    Unggah Rute GPX
-                </button>
-            </div>
-            <p id="gpx-hint" class="text-[11px] text-faint mt-1.5">Format file .gpx (maks. 5 MB). Privasi: 200 m awal dan akhir rute otomatis disembunyikan di peta.</p>
-        </form>
-
-        @if ($runs->isNotEmpty())
-            <div id="run-map" class="mt-4 h-72 sm:h-80 rounded-md border border-line bg-surface" role="img" aria-label="Peta rute lari terpilih"></div>
-
-            <ul class="mt-3 divide-y divide-line-soft border-t border-line-soft">
-                @foreach ($runs as $run)
-                    <li class="flex items-center justify-between gap-3 py-2.5">
-                        <button
-                            type="button"
-                            data-run="{{ $run->id }}"
-                            class="run-select flex-1 min-w-0 text-left flex items-baseline justify-between gap-3 rounded p-1.5 -mx-1 hover:bg-surface aria-pressed:text-accent transition-colors"
-                            aria-pressed="{{ $loop->first ? 'true' : 'false' }}"
-                        >
-                            <span class="min-w-0">
-                                <span class="block truncate text-xs font-medium text-ink">{{ $run->name ?: 'Lari Mandiri' }}</span>
-                                <span class="block text-[11px] text-muted">{{ $run->started_at?->timezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') ?? 'Tanpa waktu' }}</span>
-                            </span>
-                            <span class="shrink-0 text-right font-mono text-xs">
-                                <span class="font-semibold text-ink">{{ $km($run->distance_m) }} km</span>
-                                <span class="block text-[11px] text-muted">{{ $dur($run->duration_s) }}</span>
-                            </span>
-                        </button>
-                        <form method="POST" action="{{ route('participant.runs.destroy', [$token, $run]) }}" onsubmit="return confirm('Hapus lari ini?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-[11px] text-muted hover:text-rose-300 px-2 py-1 transition-colors" aria-label="Hapus {{ $run->name ?: 'lari' }}">
-                                Hapus
-                            </button>
-                        </form>
-                    </li>
-                @endforeach
-            </ul>
-        @endif
-    </section>
-
     {{-- Catatan Keamanan Tautan Personal --}}
     <div class="p-3.5 rounded-lg bg-surface/30 border border-line text-xs text-faint flex items-start gap-2.5">
         <span class="text-muted font-mono">[!]</span>
@@ -406,7 +336,7 @@
 @endsection
 
 @push('scripts')
-@if ($runs->isNotEmpty() || $raceRoute)
+@if ($raceRoute)
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
     const MAP_CFG = @json(config('rfid.map'));
@@ -439,44 +369,6 @@
 </script>
 @endif
 
-@if ($runs->isNotEmpty())
-<script>
-    (function () {
-        const runs = @json($runs->mapWithKeys(fn ($r) => [$r->id => $r->route]));
-        const mapEl = document.getElementById('run-map');
-        if (!mapEl || typeof L === 'undefined') return;
-
-        const map = L.map(mapEl, { scrollWheelZoom: false });
-        addTiles(map);
-
-        let layer = null;
-        function show(id) {
-            const pts = runs[id];
-            if (!pts || !pts.length) return;
-            if (layer) layer.remove();
-            const line = L.polyline(pts, { color: '#F25919', weight: 4 });
-            const start = L.circleMarker(pts[0], { radius: 5, color: '#f3f1ee', fillOpacity: 1 }).bindTooltip('Titik Awal');
-            const end = L.circleMarker(pts[pts.length - 1], { radius: 5, color: '#F25919', fillOpacity: 1 }).bindTooltip('Titik Akhir');
-            layer = L.layerGroup([line, start, end]).addTo(map);
-            map.fitBounds(line.getBounds(), { padding: [20, 20] });
-
-            document.querySelectorAll('.run-select').forEach(b => b.setAttribute('aria-pressed', b.dataset.run == id ? 'true' : 'false'));
-        }
-
-        document.querySelectorAll('.run-select').forEach(b => b.addEventListener('click', () => show(b.dataset.run)));
-        const first = document.querySelector('.run-select');
-        if (first) show(first.dataset.run);
-    })();
-</script>
-@endif
-
-<script>
-    // Cegah unggah ganda file GPX
-    document.getElementById('gpx-form')?.addEventListener('submit', e => {
-        const btn = e.target.querySelector('button[type=submit]');
-        btn.disabled = true;
-        btn.textContent = 'Mengunggah file…';
-    });
 
     // -------------------------------------------------------------
     // Live Audio Chime (Web Audio API: Synthesised Timing Gate Beep)
